@@ -23,6 +23,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 public class Main extends Application {
@@ -46,13 +47,16 @@ public class Main extends Application {
 			try {    			
 				java.util.Scanner scanner = new java.util.Scanner(file);				
 				while (scanner.hasNextLine()) {				
-					String taskLine = scanner.nextLine();
-					int task_done = Integer.valueOf(taskLine.split(" ")[0]);
-					Text task_content = new Text(taskLine.substring(2));
-					if (task_done == 1) {
-						task_content.setStrikethrough(true);
+					String stringTask = scanner.nextLine();
+					int intTaskDone = Integer.valueOf(stringTask.split(" ")[0]);
+					Text textTask = new Text(stringTask.substring(2));
+					textTask.setFont(new Font(20.0));
+					textTask.setWrappingWidth(290);
+					if (intTaskDone == 1) {
+						textTask.setStrikethrough(true);
+						textTask.setFill(Color.GRAY);
 					}
-					tasks.add(task_content);
+					tasks.add(textTask);
 				}
 				scanner.close();				
     			} catch (FileNotFoundException e) {        				
@@ -163,22 +167,26 @@ public class Main extends Application {
 		stageMain.setTitle("TODO");
 		stageMain.setResizable(false);
 		BorderPane paneMainRoot = new BorderPane();
+		
 		/* BOX MAIN TOP */		
-		Button buttonMainSettings = new Button("Settings");					
+		Button buttonMainSettings = new Button("Settings");
 		HBox boxMainTop = new HBox(10);
 		boxMainTop.setPadding(new Insets(10));
 		boxMainTop.setAlignment(Pos.CENTER_RIGHT);
 		boxMainTop.getChildren().addAll(textMainFile, buttonMainSettings);
 		textMainFile.setFill(Color.GRAY);
 		paneMainRoot.setTop(boxMainTop);
+		
 		/* MAIN: SETTINGS */
 		buttonMainSettings.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 openSettings();
             }
         });
+		
 		/* BOX MAIN CENTER */		
 		paneMainRoot.setCenter(listMainTasks);
+		
 		/* BOX MAIN BOTTOM */
 		final TextField fieldMainAdd = new TextField();
 		HBox.setHgrow(fieldMainAdd, Priority.ALWAYS);
@@ -188,33 +196,56 @@ public class Main extends Application {
 		boxMainBottom.setPadding(new Insets(10));
 		boxMainBottom.getChildren().addAll(fieldMainAdd, buttonMainAdd, buttonMainDone);
 		paneMainRoot.setBottom(boxMainBottom);
+		
 		/* MAIN: ADD */
 		buttonMainAdd.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {				
-				String newTaskContent = fieldMainAdd.getCharacters().toString();
-				tasks.add(new Text(newTaskContent));
+				String stringNewTask = fieldMainAdd.getCharacters().toString();
+				Text textNewTask = new Text(stringNewTask);
+				textNewTask.setFont(new Font(20.0));
+				textNewTask.setWrappingWidth(290);
+				tasks.add(0, textNewTask);
 				fieldMainAdd.setText("");
 			}			
 		});
+		
 		/* MAIN: DONE */
 		buttonMainDone.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {				
-				if (listMainTasks.getSelectionModel().getSelectedItem().isStrikethrough()) {
-					listMainTasks.getSelectionModel().getSelectedItem().setStrikethrough(false);
+            public void handle(ActionEvent event) {
+            	Text textSelected = listMainTasks.getSelectionModel().getSelectedItem();
+				if (textSelected.isStrikethrough()) {
+					textSelected.setStrikethrough(false);
+					tasks.remove(textSelected);
+					tasks.add(0, textSelected);
+					textSelected.setFill(Color.BLACK);
 	            } else {
-	            	listMainTasks.getSelectionModel().getSelectedItem().setStrikethrough(true);
+	            	textSelected.setStrikethrough(true);
+	            	tasks.remove(textSelected);
+	            	tasks.add(tasks.size(), textSelected);
+	            	textSelected.setFill(Color.GRAY);
 	            }				
 			}			
 		});
+		
+		/* MAIN: REMOVE */
+		Button buttonMainRemove = new Button("Remove");
+		buttonMainRemove.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {				
+            	tasks.remove(listMainTasks.getSelectionModel().getSelectedItem());
+			}			
+		});
+		
 		Scene sceneMain = new Scene(paneMainRoot, 300, 410);		
 		stageMain.setScene(sceneMain);
 		stageMain.show();		
+		
 		/* MAIN: CLOSE */
 		stageMain.setOnHiding(new EventHandler<WindowEvent>() {			
 	        public void handle(WindowEvent event) {
 	        	onExit();	        	
 	        }
-		});		
+		});
+		
 	}
 	
 	public static void main(String[] args) {
