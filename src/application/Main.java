@@ -72,7 +72,7 @@ public class Main extends Application {
 		Label labelSettings = new Label("Set the source file");
 		final TextField fieldSettings = new TextField();
 		fieldSettings.setText(filePath);
-		Button buttonSettingsChange = new Button("Change");
+		final Button buttonSettingsChange = new Button("Change");
 		Button buttonSettingsCancel = new Button("Cancel");
 		HBox boxSettingsButtons = new HBox(10);
 		boxSettingsButtons.setAlignment(Pos.CENTER);
@@ -85,14 +85,21 @@ public class Main extends Application {
 		stageSettings.setScene(sceneSettings);
 		stageSettings.show();
 		
-		/* SETTINGS: CANCEL */
+		/* FIELD SETTINGS */
+		fieldSettings.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+            	buttonSettingsChange.fire();
+            }
+		});
+		
+		/* BUTTON SETTINGS CANCEL */
 		buttonSettingsCancel.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 stageSettings.hide();
             }
         });
 		
-		/* SETTINGS: CHANGE */
+		/* BUTTON SETTINGS CHANGE */
 		buttonSettingsChange.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {                
                 filePath = fieldSettings.getCharacters().toString();
@@ -125,14 +132,14 @@ public class Main extends Application {
 		stageExit.setScene(sceneExit);
 		stageExit.show();
 		
-		/* UPDATE: NO */
+		/* BUTTON UPDATE NO */
 		buttonExitNo.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 stageExit.hide();
             }
         });
 		
-		/* UPDATE: YES */
+		/* BUTTON UPDATE YES */
 		buttonExitYes.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
             	File file = new File(filePath);
@@ -177,7 +184,7 @@ public class Main extends Application {
 		textMainFile.setFill(Color.GRAY);
 		paneMainRoot.setTop(boxMainTop);
 		
-		/* MAIN: SETTINGS */
+		/* BUTTON MAIN SETTINGS */
 		buttonMainSettings.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 openSettings();
@@ -190,14 +197,21 @@ public class Main extends Application {
 		/* BOX MAIN BOTTOM */
 		final TextField fieldMainAdd = new TextField();
 		HBox.setHgrow(fieldMainAdd, Priority.ALWAYS);
-		Button buttonMainAdd = new Button("Add");
+		final Button buttonMainAdd = new Button("Add");
 		Button buttonMainDone = new Button("Done");
 		HBox boxMainBottom = new HBox(10);
 		boxMainBottom.setPadding(new Insets(10));
 		boxMainBottom.getChildren().addAll(fieldMainAdd, buttonMainAdd, buttonMainDone);
 		paneMainRoot.setBottom(boxMainBottom);
 		
-		/* MAIN: ADD */
+		/* FIELD MAIN ADD */
+		fieldMainAdd.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+            	buttonMainAdd.fire();
+            }
+		});
+		
+		/* BUTTON MAIN ADD */
 		buttonMainAdd.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {				
 				String stringNewTask = fieldMainAdd.getCharacters().toString();
@@ -209,7 +223,7 @@ public class Main extends Application {
 			}			
 		});
 		
-		/* MAIN: DONE */
+		/* BUTTON MAIN DONE */
 		buttonMainDone.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
             	Text textSelected = listMainTasks.getSelectionModel().getSelectedItem();
@@ -227,7 +241,7 @@ public class Main extends Application {
 			}			
 		});
 		
-		/* MAIN: REMOVE */
+		/* BUTTON MAIN REMOVE */
 		Button buttonMainRemove = new Button("Remove");
 		buttonMainRemove.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {				
@@ -239,7 +253,7 @@ public class Main extends Application {
 		stageMain.setScene(sceneMain);
 		stageMain.show();		
 		
-		/* MAIN: CLOSE */
+		/* MAIN ON CLOSE */
 		stageMain.setOnHiding(new EventHandler<WindowEvent>() {			
 	        public void handle(WindowEvent event) {
 	        	onExit();	        	
