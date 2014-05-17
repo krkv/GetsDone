@@ -28,7 +28,7 @@ import javafx.scene.text.Text;
 
 public class Main extends Application {
 	
-	public static String filePath = "default.txt";
+	public static String filePath = "tasks.txt";
 	public static File file = new File(filePath);
 	public static ObservableList<Text> tasks = FXCollections.observableArrayList();
 	public static ListView<Text> listMainTasks = new ListView<Text>();
@@ -215,11 +215,13 @@ public class Main extends Application {
 		buttonMainAdd.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {				
 				String stringNewTask = fieldMainAdd.getCharacters().toString();
-				Text textNewTask = new Text(stringNewTask);
-				textNewTask.setFont(new Font(20.0));
-				textNewTask.setWrappingWidth(290);
-				tasks.add(0, textNewTask);
-				fieldMainAdd.setText("");
+				if (!stringNewTask.isEmpty()) {
+					Text textNewTask = new Text(stringNewTask);
+					textNewTask.setFont(new Font(20.0));
+					textNewTask.setWrappingWidth(290);
+					tasks.add(0, textNewTask);
+					fieldMainAdd.setText("");
+				}
 			}			
 		});
 		
