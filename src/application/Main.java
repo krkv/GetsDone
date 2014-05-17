@@ -32,7 +32,6 @@ public class Main extends Application {
 	public static File file = new File(filePath);
 	public static ObservableList<Text> tasks = FXCollections.observableArrayList();
 	public static ListView<Text> listMainTasks = new ListView<Text>();
-	public static Text textMainFile = new Text(filePath);
 	public static boolean changed = false;
 	
 	public void onStart() {
@@ -70,14 +69,14 @@ public class Main extends Application {
 		
 		final Stage stageSettings = new Stage();
 		stageSettings.setResizable(false);
-		Label labelSettings = new Label("Set the source file");
+		Label labelSettings = new Label("Import tasks from a text file");
 		final TextField fieldSettings = new TextField();
-		fieldSettings.setText(filePath);
-		final Button buttonSettingsChange = new Button("Change");
+		fieldSettings.setText("");
+		final Button buttonSettingsImport = new Button("Import");
 		Button buttonSettingsCancel = new Button("Cancel");
 		HBox boxSettingsButtons = new HBox(10);
 		boxSettingsButtons.setAlignment(Pos.CENTER);
-		boxSettingsButtons.getChildren().addAll(buttonSettingsChange, buttonSettingsCancel);
+		boxSettingsButtons.getChildren().addAll(buttonSettingsImport, buttonSettingsCancel);
 		VBox boxSettingsRoot = new VBox(10);
 		boxSettingsRoot.setPadding(new Insets(10));
 		boxSettingsRoot.setAlignment(Pos.CENTER);
@@ -89,7 +88,7 @@ public class Main extends Application {
 		/* FIELD SETTINGS */
 		fieldSettings.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-            	buttonSettingsChange.fire();
+            	buttonSettingsImport.fire();
             }
 		});
 		
@@ -100,15 +99,28 @@ public class Main extends Application {
             }
         });
 		
-		/* BUTTON SETTINGS CHANGE */
-		buttonSettingsChange.setOnAction(new EventHandler<ActionEvent>() {
+		/* BUTTON SETTINGS IMPORT */
+		buttonSettingsImport.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {                
-                filePath = fieldSettings.getCharacters().toString();
-                file = new File(filePath);
-                textMainFile.setText(filePath);
-                tasks.clear();
-                onStart();
-                stageSettings.hide();
+                String importPath = fieldSettings.getCharacters().toString();
+                File importFile = new File(importPath);
+                try {    			
+    				java.util.Scanner scanner = new java.util.Scanner(importFile);				
+    				while (scanner.hasNextLine()) {				
+    					String stringTask = scanner.nextLine();
+    					Text textTask = new Text(stringTask);
+    					textTask.setFont(new Font(20.0));
+    					textTask.setWrappingWidth(290);
+    					tasks.add(textTask);
+    				}
+    				scanner.close();				
+        			} catch (FileNotFoundException e) {
+        				// file not found error here?
+    					e.printStackTrace();    					
+    				} finally {
+    					stageSettings.hide();
+    					changed = true;
+    				}
             }
         });
 		
@@ -181,8 +193,7 @@ public class Main extends Application {
 		HBox boxMainTop = new HBox(10);
 		boxMainTop.setPadding(new Insets(10));
 		boxMainTop.setAlignment(Pos.CENTER_RIGHT);
-		boxMainTop.getChildren().addAll(textMainFile, buttonMainSettings);
-		textMainFile.setFill(Color.GRAY);
+		boxMainTop.getChildren().addAll(buttonMainSettings);
 		paneMainRoot.setTop(boxMainTop);
 		
 		/* BUTTON MAIN SETTINGS */
@@ -200,9 +211,10 @@ public class Main extends Application {
 		HBox.setHgrow(fieldMainAdd, Priority.ALWAYS);
 		final Button buttonMainAdd = new Button("Add");
 		Button buttonMainDone = new Button("Done");
+		Button buttonMainRemove = new Button("Remove");
 		HBox boxMainBottom = new HBox(10);
 		boxMainBottom.setPadding(new Insets(10));
-		boxMainBottom.getChildren().addAll(fieldMainAdd, buttonMainAdd, buttonMainDone);
+		boxMainBottom.getChildren().addAll(fieldMainAdd, buttonMainAdd, buttonMainDone, buttonMainRemove);
 		paneMainRoot.setBottom(boxMainBottom);
 		
 		/* FIELD MAIN ADD */
@@ -219,7 +231,7 @@ public class Main extends Application {
 				if (!stringNewTask.isEmpty()) {
 					Text textNewTask = new Text(stringNewTask);
 					textNewTask.setFont(new Font(20.0));
-					textNewTask.setWrappingWidth(290);
+					textNewTask.setWrappingWidth(390);
 					tasks.add(0, textNewTask);
 					fieldMainAdd.setText("");
 					changed = true;
@@ -247,7 +259,6 @@ public class Main extends Application {
 		});
 		
 		/* BUTTON MAIN REMOVE */
-		Button buttonMainRemove = new Button("Remove");
 		buttonMainRemove.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {				
             	tasks.remove(listMainTasks.getSelectionModel().getSelectedItem());
@@ -255,7 +266,7 @@ public class Main extends Application {
 			}			
 		});
 		
-		Scene sceneMain = new Scene(paneMainRoot, 300, 410);		
+		Scene sceneMain = new Scene(paneMainRoot, 400, 410);		
 		stageMain.setScene(sceneMain);
 		stageMain.show();		
 		
