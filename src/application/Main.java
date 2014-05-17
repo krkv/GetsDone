@@ -3,6 +3,7 @@ package application;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -71,16 +72,17 @@ public class Main extends Application {
 		stageSettings.setResizable(false);
 		Label labelSettings = new Label("Import tasks from a text file");
 		final TextField fieldSettings = new TextField();
-		fieldSettings.setText("");
+		fieldSettings.setText("path to file");
 		final Button buttonSettingsImport = new Button("Import");
-		Button buttonSettingsCancel = new Button("Cancel");
-		HBox boxSettingsButtons = new HBox(10);
-		boxSettingsButtons.setAlignment(Pos.CENTER);
-		boxSettingsButtons.getChildren().addAll(buttonSettingsImport, buttonSettingsCancel);
+		Button buttonSettingsClose = new Button("Close settings");
+		Button buttonSettingsRemoveAllDone = new Button("Remove all tasks that are done");
+		HBox boxSettingsImport = new HBox(10);
+		boxSettingsImport.setAlignment(Pos.CENTER);
+		boxSettingsImport.getChildren().addAll(fieldSettings, buttonSettingsImport);
 		VBox boxSettingsRoot = new VBox(10);
 		boxSettingsRoot.setPadding(new Insets(10));
 		boxSettingsRoot.setAlignment(Pos.CENTER);
-		boxSettingsRoot.getChildren().addAll(labelSettings, fieldSettings, boxSettingsButtons);
+		boxSettingsRoot.getChildren().addAll(labelSettings, boxSettingsImport, buttonSettingsRemoveAllDone, buttonSettingsClose);
 		Scene sceneSettings = new Scene(boxSettingsRoot,300,150);
 		stageSettings.setScene(sceneSettings);
 		stageSettings.show();
@@ -92,8 +94,23 @@ public class Main extends Application {
             }
 		});
 		
-		/* BUTTON SETTINGS CANCEL */
-		buttonSettingsCancel.setOnAction(new EventHandler<ActionEvent>() {
+		/* BUTTON SETTINGS REMOVE ALL DONE */
+		buttonSettingsRemoveAllDone.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+            	ArrayList<Text> remove = new ArrayList<Text>();
+            	for(Text t: tasks) {
+            		if (t.isStrikethrough()) {
+            			remove.add(t);
+					}
+            	}
+            	tasks.removeAll(remove);
+            	changed = true;
+                stageSettings.hide();
+            }
+        });
+		
+		/* BUTTON SETTINGS CLOSE */
+		buttonSettingsClose.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
                 stageSettings.hide();
             }
@@ -118,8 +135,8 @@ public class Main extends Application {
         				// file not found error here?
     					e.printStackTrace();    					
     				} finally {
-    					stageSettings.hide();
     					changed = true;
+    					stageSettings.hide();
     				}
             }
         });
