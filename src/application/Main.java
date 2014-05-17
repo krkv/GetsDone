@@ -33,6 +33,7 @@ public class Main extends Application {
 	public static ObservableList<Text> tasks = FXCollections.observableArrayList();
 	public static ListView<Text> listMainTasks = new ListView<Text>();
 	public static Text textMainFile = new Text(filePath);
+	public static boolean changed = false;
 	
 	public void onStart() {
 		
@@ -117,7 +118,7 @@ public class Main extends Application {
 		
 		final Stage stageExit = new Stage();
 		stageExit.setResizable(false);
-		Label labelExit = new Label("Do you want to update " + filePath + "?");
+		Label labelExit = new Label("Do you want to update your list?");
 		Button buttonExitYes = new Button("Yes");
 		Button buttonExitNo = new Button("No");
 		HBox boxExitButtons = new HBox(10);
@@ -221,6 +222,7 @@ public class Main extends Application {
 					textNewTask.setWrappingWidth(290);
 					tasks.add(0, textNewTask);
 					fieldMainAdd.setText("");
+					changed = true;
 				}
 			}			
 		});
@@ -239,7 +241,8 @@ public class Main extends Application {
 	            	tasks.remove(textSelected);
 	            	tasks.add(tasks.size(), textSelected);
 	            	textSelected.setFill(Color.GRAY);
-	            }				
+	            }
+				changed = true;
 			}			
 		});
 		
@@ -248,6 +251,7 @@ public class Main extends Application {
 		buttonMainRemove.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {				
             	tasks.remove(listMainTasks.getSelectionModel().getSelectedItem());
+            	changed = true;
 			}			
 		});
 		
@@ -258,7 +262,7 @@ public class Main extends Application {
 		/* MAIN ON CLOSE */
 		stageMain.setOnHiding(new EventHandler<WindowEvent>() {			
 	        public void handle(WindowEvent event) {
-	        	onExit();	        	
+	        	if (changed) onExit();	        	
 	        }
 		});
 		
