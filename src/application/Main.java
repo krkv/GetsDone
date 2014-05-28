@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -346,7 +345,7 @@ public class Main extends Application {
 		
 		HBox boxMainTop = new HBox(10);
 		boxMainTop.setPadding(new Insets(10));
-		boxMainTop.setAlignment(Pos.CENTER_LEFT);
+		boxMainTop.setAlignment(Pos.CENTER);
 		boxMainTop.getChildren().addAll(buttonMainDone, buttonMainDelete, 
 				buttonMainImport, buttonMainSettings);
 		paneMainRoot.setTop(boxMainTop);
@@ -416,7 +415,9 @@ public class Main extends Application {
 		buttonMainAdd.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {				
 				String stringNewTask = fieldMainAdd.getCharacters().toString();
-				if (!stringNewTask.isEmpty()) {
+				if (stringNewTask.isEmpty() || stringNewTask.substring(0,6).equals("[done]")) {
+					fieldMainAdd.setText("");
+				} else {
 					Text textNewTask = new Text(stringNewTask);
 					textNewTask.setFont(new Font(taskTextSize));
 					textNewTask.setWrappingWidth(290);

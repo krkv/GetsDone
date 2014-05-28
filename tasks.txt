@@ -1,3 +1,4 @@
-Be nice
-Finish TODO
-Eat something
+Prepare to Algebra test
+Finish OOP project website
+[done] Prepare to Databases test
+[done] Write Databases test
