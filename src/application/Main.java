@@ -29,15 +29,38 @@ import javafx.scene.text.Text;
 public class Main extends Application {
 	
 	public static String filePath = "tasks.txt";
+	public static String settingsPath = "settings.gsd";
+	
 	public static File file = new File(filePath);
+	public static File settings = new File(settingsPath);
+	
 	public static ObservableList<Text> tasks = FXCollections.observableArrayList();
 	public static ListView<Text> listMainTasks = new ListView<Text>();
+	
 	public static boolean changed = false;
 	public static double taskTextSize = 20.0;
 	
 	public void onStart() {
 		
 		listMainTasks.setItems(tasks);
+		
+		/* READ SETTINGS */
+		if(settings.exists()) {
+			try {    			
+				java.util.Scanner scanner = new java.util.Scanner(settings);				
+				while (scanner.hasNextLine()) {				
+					String string = scanner.nextLine();
+					System.out.println(string);
+					if (string.equals("14.0")) taskTextSize = 14.0;
+					else if (string.equals("26.0")) taskTextSize = 26.0;
+				}
+				scanner.close();				
+    			} catch (FileNotFoundException e) {        				
+					e.printStackTrace();    					
+				}
+		}
+		
+		/* READ TASKS */
 		if(!file.exists()) {    		
 			try {	    				
 				file.createNewFile();						
@@ -140,138 +163,8 @@ public class Main extends Application {
             }
         });		
 		
-	}
-	
-	/* METHOD OPEN DELETE */
-	public void openDelete() {
+	}		
 		
-		final Stage stageDelete = new Stage();
-		stageDelete.setResizable(false);
-		
-		Button buttonDeleteSelected = new Button("Delete selected task");
-		Button buttonDeleteAllDone = new Button("Delete all done tasks");
-		Button buttonDeleteClose = new Button("Close");
-		
-		final Label labelDeleteError = new Label("Nothing is selected!");
-		labelDeleteError.setTextFill(Color.RED);
-		
-		final VBox boxDeleteRoot = new VBox(10);
-		boxDeleteRoot.setPadding(new Insets(10));
-		boxDeleteRoot.setAlignment(Pos.CENTER);
-		boxDeleteRoot.getChildren().addAll(buttonDeleteSelected, buttonDeleteAllDone, buttonDeleteClose);
-		
-		Scene sceneDelete = new Scene(boxDeleteRoot,300,150);
-		
-		stageDelete.setScene(sceneDelete);
-		stageDelete.show();
-		
-		/* BUTTON DELETE SELECTED */
-		buttonDeleteSelected.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-            	if (listMainTasks.getSelectionModel().getSelectedItem() == null) {
-            		if (boxDeleteRoot.getChildren().get(1) != labelDeleteError) {
-            			boxDeleteRoot.getChildren().add(1, labelDeleteError);
-            		}
-            	} else {
-            	tasks.remove(listMainTasks.getSelectionModel().getSelectedItem());
-            	changed = true;
-            	stageDelete.hide();
-            	}
-			}			
-		});
-		
-		/* BUTTON DELETE ALL DONE */
-		buttonDeleteAllDone.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-            	ArrayList<Text> remove = new ArrayList<Text>();
-            	for(Text t: tasks) {
-            		if (t.isStrikethrough()) {
-            			remove.add(t);
-					}
-            	}
-            	tasks.removeAll(remove);
-            	changed = true;
-            	stageDelete.hide();
-            }
-        });
-		
-		/* BUTTON DELETE CLOSE */
-		buttonDeleteClose.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                stageDelete.hide();
-            }
-        });
-		
-	}
-	
-	/* METHOD OPEN DELETE */
-	public void openSettings() {
-		
-		final Stage stageSettings = new Stage();
-		stageSettings.setResizable(false);
-		
-		Label labelSettingsFont = new Label("Select font size:");
-		
-		Button buttonSettingsSmall = new Button("Small");
-		Button buttonSettingsMedium = new Button("Medium");
-		Button buttonSettingsBig = new Button("Big");
-		Button buttonSettingsClose = new Button("Close");
-		
-		HBox boxSettingsFont = new HBox(10);
-		boxSettingsFont.setPadding(new Insets(10));
-		boxSettingsFont.setAlignment(Pos.CENTER);
-		boxSettingsFont.getChildren().addAll(buttonSettingsSmall, 
-				buttonSettingsMedium, buttonSettingsBig);
-		
-		final VBox boxSettingsRoot = new VBox(10);
-		boxSettingsRoot.setPadding(new Insets(10));
-		boxSettingsRoot.setAlignment(Pos.CENTER);
-		boxSettingsRoot.getChildren().addAll(labelSettingsFont, boxSettingsFont, buttonSettingsClose);
-		
-		Scene sceneSettings = new Scene(boxSettingsRoot,300,150);
-		
-		stageSettings.setScene(sceneSettings);
-		stageSettings.show();
-		
-		/* BUTTON SETTINGS SMALL */
-		buttonSettingsSmall.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-            	taskTextSize = 14.0;
-            	for (Text t: tasks) {
-            		t.setFont(new Font(14.0));
-            	}
-			}			
-		});
-		
-		/* BUTTON SETTINGS MEDIUM */
-		buttonSettingsMedium.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-            	taskTextSize = 20.0;
-            	for (Text t: tasks) {
-            		t.setFont(new Font(20.0));
-            	}
-			}			
-		});
-		
-		/* BUTTON SETTINGS BIG */
-		buttonSettingsBig.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-            	taskTextSize = 26.0;
-            	for (Text t: tasks) {
-            		t.setFont(new Font(26.0));
-            	}
-			}			
-		});
-		
-		/* BUTTON SETTINGS CLOSE */
-		buttonSettingsClose.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent event) {
-                stageSettings.hide();
-            }
-        });
-		
-	}
-	
 	/* METHOD ON EXIT */
 	public void onExit() {
 		
@@ -333,22 +226,43 @@ public class Main extends Application {
 	public void start(final Stage stageMain) {
 		
 		onStart();		
-		stageMain.setTitle("TODO");
+		stageMain.setTitle("Get Shit Done");
 		stageMain.setResizable(false);
 		BorderPane paneMainRoot = new BorderPane();
 		
 		/* BOX MAIN TOP */
+		Button buttonMainMore = new Button("...");
 		Button buttonMainDone = new Button("Done");
-		Button buttonMainDelete = new Button("Delete");
+		Button buttonMainDeleteSelected = new Button("Delete");
+		Button buttonMainDeleteDone = new Button("Delete all done");
 		Button buttonMainImport = new Button("Import");
-		Button buttonMainSettings = new Button("Settings");
+		Button buttonMainFont = new Button("Font");
 		
-		HBox boxMainTop = new HBox(10);
-		boxMainTop.setPadding(new Insets(10));
-		boxMainTop.setAlignment(Pos.CENTER);
-		boxMainTop.getChildren().addAll(buttonMainDone, buttonMainDelete, 
-				buttonMainImport, buttonMainSettings);
+		final VBox boxMainTop = new VBox(0);
+		
+		HBox boxMainTopLevel1 = new HBox(10);
+		boxMainTopLevel1.setPadding(new Insets(10));
+		boxMainTopLevel1.setAlignment(Pos.CENTER_LEFT);
+		
+		boxMainTopLevel1.getChildren().addAll(buttonMainDone, buttonMainMore);
+		
+		final HBox boxMainTopLevel2 = new HBox(10);
+		boxMainTopLevel2.setPadding(new Insets(10));
+		
+		boxMainTopLevel2.getChildren().addAll(buttonMainDeleteSelected, buttonMainDeleteDone, buttonMainImport, buttonMainFont);
+		
+		boxMainTop.getChildren().add(boxMainTopLevel1);
+		
 		paneMainRoot.setTop(boxMainTop);
+		
+		/* BUTTON MAIN MORE */
+		buttonMainMore.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+                if (boxMainTop.getChildren().size() == 1) {
+                	boxMainTop.getChildren().add(boxMainTopLevel2);
+                } else boxMainTop.getChildren().remove(boxMainTopLevel2);
+            }
+        });		
 		
 		/* BUTTON MAIN DONE */
 		buttonMainDone.setOnAction(new EventHandler<ActionEvent>() {
@@ -369,10 +283,25 @@ public class Main extends Application {
 			}			
 		});
 		
-		/* BUTTON MAIN DELETE */
-		buttonMainDelete.setOnAction(new EventHandler<ActionEvent>() {
+		/* BUTTON MAIN DELETE SELECTED */
+		buttonMainDeleteSelected.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                openDelete();
+            	tasks.remove(listMainTasks.getSelectionModel().getSelectedItem());
+            	changed = true;
+			}			
+		});
+		
+		/* BUTTON MAIN DELETE DONE */
+		buttonMainDeleteDone.setOnAction(new EventHandler<ActionEvent>() {
+            public void handle(ActionEvent event) {
+            	ArrayList<Text> remove = new ArrayList<Text>();
+            	for(Text t: tasks) {
+            		if (t.isStrikethrough()) {
+            			remove.add(t);
+					}
+            	}
+            	tasks.removeAll(remove);
+            	changed = true;
             }
         });
 		
@@ -383,12 +312,27 @@ public class Main extends Application {
             }
         });
 		
-		/* BUTTON MAIN SETTINGS */
-		buttonMainSettings.setOnAction(new EventHandler<ActionEvent>() {
+		/* BUTTON MAIN FONT */
+		buttonMainFont.setOnAction(new EventHandler<ActionEvent>() {
             public void handle(ActionEvent event) {
-                openSettings();
-            }
-        });
+            	if (taskTextSize == 14.0) {
+            		taskTextSize = 20.0;
+            		for (Text t: tasks) {
+            			t.setFont(new Font(20.0));
+            		}
+            	} else if (taskTextSize == 20.0) {
+            		taskTextSize = 26.0;
+            		for (Text t: tasks) {
+            			t.setFont(new Font(26.0));
+            		}
+            	} else if (taskTextSize == 26.0) {
+            		taskTextSize = 14.0;
+            		for (Text t: tasks) {
+            			t.setFont(new Font(14.0));
+            		}
+            	}
+			}			
+		});
 		
 		/* BOX MAIN CENTER */		
 		paneMainRoot.setCenter(listMainTasks);
@@ -435,6 +379,20 @@ public class Main extends Application {
 		/* MAIN ON CLOSE */
 		stageMain.setOnHiding(new EventHandler<WindowEvent>() {			
 	        public void handle(WindowEvent event) {
+	        	
+	        	File settings = new File(settingsPath);
+	        	if(settings.exists()){
+	        		settings.delete();
+	        	}
+	        	try {
+	        		settings.createNewFile();
+	    			java.io.PrintWriter pw = new java.io.PrintWriter(settings);
+	    			pw.print(taskTextSize);
+	    			pw.close();				
+	    		} catch (IOException e) {
+	    			e.printStackTrace();
+	    		}
+	        	
 	        	if (changed) onExit();	        	
 	        }
 		});
